@@ -1,6 +1,6 @@
 # 📖 Readable
 
-![Screenshot](/assets/screenshot.jpg)
+[![Screenshot](/assets/screenshot.jpg)](https://readable.shuttleapp.rs)
 
 [Readable] is a tiny service for converting web articles to readable text.  
 It's like _Reader View_ in Firefox/Safari, but for any device and with a focus on
