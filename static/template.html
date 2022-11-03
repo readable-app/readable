@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Readable</title>
+    <style>
+      /* Copyright 2015 Ruud van Asseldonk
+       * Adapted from the original by Matthias Endler
+       *
+       * This program is free software: you can redistribute it and/or modify
+       * it under the terms of the GNU General Public License version 3. See
+       * the licence file in the root of the repository.
+       */
+
+      @font-face {
+        font-family: "Crimson";
+        src: url(/static/Crimson.woff2);
+      }
+
+      @font-face {
+        font-family: "JetBrainsMono";
+        src: url(/static/JetBrainsMono.woff2);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+      }
+
+      code,
+      em,
+      strong {
+        line-height: 1;
+      }
+
+      :root {
+        --text-color-normal: #456;
+        --text-color-accent: #123;
+        --text-color-highlight: #c35;
+        --bg-color: #fff;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --text-color-normal: #eaeaea;
+          --text-color-accent: #fff;
+          --text-color-highlight: #ff1276;
+          --bg-color: #123;
+        }
+      }
+
+      html {
+        font-size: 17px;
+      }
+
+      body {
+        color: var(--text-color-normal);
+        background-color: var(--bg-color);
+        font-family: "Crimson", serif;
+        /* Firefox applies ligatures automatically when they are available, but Chrome
+         * needs to be told explicitly. */
+        font-feature-settings: "liga", "kern";
+        line-height: 1.4em;
+
+        padding: 1.4em;
+        padding-top: 1.4em;
+        padding-right: 1.4em;
+        padding-left: 1.4em;
+        margin-left: auto;
+        margin-right: auto;
+        max-width: 36em;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6,
+      header {
+        font-family: "Crimson", serif;
+      }
+
+      header {
+        margin-left: 1em;
+        margin-right: 1em;
+        overflow: hidden;
+        text-align: center;
+      }
+
+      h1 {
+        /* Align the header on the third baseline. (The first baseline is at the
+         * bottom of the top border of the body.) Ensure that the bottom margin
+         * aligns with the grid. */
+        color: var(--text-color-accent);
+        font-size: 2.8em;
+        line-height: 2.8rem;
+        margin-bottom: 0.7rem;
+        padding-top: 0.8rem;
+      }
+
+      header > h2 {
+        font-feature-settings: "dlig";
+        font-size: 1.4em;
+        font-style: italic;
+        font-weight: normal;
+        line-height: 1.4rem;
+        margin-bottom: 1rem;
+        padding-top: 0.4rem;
+      }
+
+      header > p {
+        color: var(--text-color-highlight);
+        padding-top: 0.5em;
+        padding-bottom: 0.9em;
+        margin-bottom: 0;
+      }
+
+      header > p > a {
+        text-decoration: underline dotted;
+      }
+
+      /* The headings may contain manually inserted line breaks for a more balanced
+       * break, but these are intended for full-width pages only. Ignore them for
+       * narrow viewports. */
+      h1 > br {
+        display: none;
+      }
+
+      p,
+      nav {
+        margin-bottom: 1em;
+        padding-top: 0.4em;
+      }
+
+      a {
+        color: var(--text-color-highlight);
+        text-decoration: none;
+      }
+
+      abbr,
+      .smcp {
+        /* Use the both the caps-to-small-caps (c2sc) opentype feature, and small
+         * normal lower case to small caps (smcp). This means that the text will
+         * render in all small caps if opentype features are supported, or in its
+         * original casing if they are not. I prefer to fall back to the original
+         * casing instead of all caps, because all caps are too shouty. For acronyms
+         * the original caps are still all caps, but for most .smcp things they are
+         * not. */
+        font-feature-settings: "smcp", "c2sc";
+
+        /* Note: Enabling letter spacing breaks small caps in Blink before version
+         * 48. I fixed it in https://crrev.com/1416603005 which will go mainstream
+         * with Chrome 48. */
+        letter-spacing: 0.1em;
+      }
+
+      h2 {
+        font-family: Calluna, serif;
+        font-size: 1.4em;
+        line-height: 1em;
+        margin-bottom: 1rem;
+        padding-top: 1.2rem;
+      }
+
+      ul,
+      ol {
+        counter-reset: ol;
+        margin-bottom: 1em;
+        padding-top: 0.4em;
+        padding-left: 1.4em;
+      }
+
+      table {
+        border-spacing: 0;
+        margin-bottom: 1em;
+        margin-left: auto;
+        margin-right: auto;
+        text-align: left;
+      }
+
+      th {
+        padding-top: 0.4em;
+      }
+
+      th,
+      td {
+        padding-right: 1.4em;
+        vertical-align: top;
+      }
+
+      code {
+        font-family: JetBrainsMono, monospace;
+        font-size: 0.8em;
+      }
+
+      pre {
+        /* The top and bottom of the block are not baseline-aligned, but the space
+         * between the top and the text baseline and between the bottom and the
+         * x-height is both 1.6em. The code baseline is offset from the regular
+         * baseline by 0.7em (half a line height). */
+        background-color: #f8f7f4;
+        border-left: 0.25rem solid var(--text-color-highlight);
+        margin-bottom: 0.6rem;
+        margin-top: 0.2rem;
+        overflow-x: auto;
+        padding: 1rem;
+        padding-left: 1.4rem;
+        padding-right: 1.4rem;
+
+        /* Use a slightly smaller font size for code blocks, because matching the
+         * x-height to the body font makes the code look too big. Do keep the same
+         * line height to ensure proper baseline alignment. */
+        font-size: 0.9em;
+        line-height: 1.4rem;
+      }
+
+      code.sourceCode {
+        color: var(--text-color-normal);
+      }
+
+      img {
+        width: 100%;
+        height: auto;
+
+        /* To align images the same as code blocks, they need to be 0.2em below the
+         * baseline. The paragraph has a padding of 0.4em, so compensate the 0.2.
+         * This leaves 1.6em between the baseline and the image. For optical
+         * alignment, the same space should be left between the bottom and the
+         * x-height of the next line. Paragraphs are aligned such that there is 1em
+         * between the baseline and the x-height of the next line. The paragraph that
+         * surrounds the image provides 1em bottom margin, so 0.4em needs to be
+         * compensated, plus 0.2em for the top offset. */
+        margin-top: -0.2em;
+        margin-bottom: -0.6em;
+      }
+
+      /* "object", which I use for svgs rather than "img", has a similar alignment,
+       * except for a different margin below. When the image height at 100% width
+       * (36em) is a multiple of the em size, this ensures that we keep the vertical
+       * rhythm. For my "Build system insights" post, this aligns the bars and the
+       * text in that graph to the baseline, and the rest of the page continues
+       * properly aligned as well. */
+      object {
+        width: 100%;
+        margin-top: -0.2em;
+        margin-bottom: -0.3em;
+      }
+
+      blockquote {
+        font-family: Calluna, serif;
+        font-style: italic;
+        padding-left: 1em;
+        padding-right: 1em;
+      }
+
+      @media (min-width: 470px) {
+        /* Add some margin to the heading to make it line-wrap nicer. Smaller
+         * viewports get more room because the words might not fit otherwise. */
+        header {
+          margin-left: 2.8em;
+          margin-right: 2.8em;
+        }
+      }
+
+      /* At this width, the viewport is wide enough to fit the content at its
+       * maximum width (36em). */
+      @media (min-width: 802px) {
+        /* If we are on a large-ish screen anyway, give the header some room to
+         * breathe. */
+        header {
+          margin-top: 1.4em;
+          margin-bottom: 1.4em;
+        }
+      }
+
+      @media (min-width: 1225px) {
+        html {
+          font-size: 19px;
+        }
+      }
+
+      @media (min-width: 1496px) {
+        html {
+          font-size: 22px;
+        }
+      }
+      @media (min-width: 1736px) {
+        html {
+          font-size: 23px;
+        }
+      }
+      @media (min-width: 2025px) {
+        html {
+          font-size: 24px;
+        }
+      }
+
+      /* At the points where the font size changes, the viewport width in ems makes
+       * a jump:
+       *
+       *   469px -> 470px: 29.3em -> 27.6em (delta -1.7em)
+       *   624px -> 625px: 36.7em -> 34.7em (delta -2.0em)
+       *   801px -> 802px: 44.5em -> 42.2em (delta -2.3em)
+       *
+       * Instead of having a minimal margin until the viewport is wide enough, I like
+       * to gradually increase the margin. Changing the margins at the same time as
+       * the font size would make the difference in line width even more extreme, so
+       * instead change the margins in between. (The in-between points can be computed
+       * using the width formula above, but now at integer font sizes.)
+       *
+       * The settings below split the first jump in 1.2em and 0.5em, and the second
+       * jump in 1.6em and 0.4em. */
+
+      .shortened {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      li {
+        line-height: 1.5;
+      }
+    </style>
+    {{canonical}}
+  </head>
+  <body>
+    <header>
+      <h1>{{title}}</h1>
+      <p>{{header}}</p>
+    </header>
+    {{content}}
+  </body>
+</html>
