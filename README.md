@@ -21,7 +21,7 @@ Read the [announcement blog post](https://endler.dev/2022/readable) for more det
 
 ## Deployment
 
-You can either deploy a self-hosted instance or use [shuttle.rs](shuttle.rs).
+You can either deploy a self-hosted instance or use [shuttle.rs](https://shuttle.rs).
 Once you signed up for a shuttle.rs account, you can deploy Readable with a
 single command:
 
