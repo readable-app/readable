@@ -22,34 +22,7 @@ pub fn index() -> Html<String> {
         "A simple web service to extract the main content from an article<br /> and format it for <i>reading</i>.
         Source code <a href=\"https://github.com/mre/readable\">here</a>.
         ",
-        "Append any URL to the address bar to get started.
-        <h2>Examples</h2>
-        <ul>
-            <li>
-                <a href=\"/https://www.shuttle.rs/blog/2022/10/21/shuttle-next\">Blog Post</a>
-            </li>
-            <li>
-                <a href=\"/https://www.nytimes.com/2022/06/30/opinion/internet-speech-reform-facebook.html\">New York Times Article</a>
-            </li>
-            <li>
-                <a href=\"/https://en.wikipedia.org/wiki/Alan_Turing\">Wikipedia &raquo; Alan_Turing</a>
-            </li>
-            <li>
-                <a href=\"/https://www.reddit.com/r/WritingPrompts/comments/xe9shf/pi_youre_a_mimic_you_were_disguised_as_a_chair_in/\">Reddit <i>/r/WritingPrompts</i></a>
-            </li>
-        </ul>
-        <h2>Use-Cases</h2>
-        <ul>
-            <li>Revive your old ebook reader</li>
-            <li>Distraction-free reading</li>
-            <li>Zero ads and tracking</li>
-            <li>Faster browsing on low-bandwidth connections</li>
-            <li>Read articles in your terminal (e.g. with lynx)</li>
-            <li>Deploy your own version to learn some Rust</li>
-        </ul>
-        <p>
-            Built by <a href=\"https://endler.dev/2022/readable\">Matthias</a> with Rust and <a href=\"https://shuttle.rs\">shuttle.rs</a>.
-        ",
+        include_str!("../static/index.html"),
         None,
     )
 }
