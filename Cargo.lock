@@ -1274,19 +1274,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "readability"
-version = "0.1.0"
-source = "git+https://github.com/readable-app/readability.rs.git?branch=cleanup#a159ee3c6767083c168c6fbfc7051d2a29ff873a"
-dependencies = [
- "html5ever",
- "kuchiki",
- "lazy_static",
- "log",
- "regex",
- "url",
-]
-
-[[package]]
 name = "readable"
 version = "0.1.0"
 dependencies = [
@@ -1294,11 +1281,25 @@ dependencies = [
  "axum",
  "chrono",
  "kuchiki",
- "readability",
+ "readable-readability",
  "reqwest",
  "shuttle-service",
  "sync_wrapper",
  "tokio",
+ "url",
+]
+
+[[package]]
+name = "readable-readability"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5b3ad41bb898b5e1bcabfc54dd37271fa68bc521ab55c62650e612c188457579"
+dependencies = [
+ "html5ever",
+ "kuchiki",
+ "lazy_static",
+ "log",
+ "regex",
  "url",
 ]
 

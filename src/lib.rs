@@ -6,7 +6,7 @@ use axum::{
     Router,
 };
 use kuchiki::traits::*;
-use readability::Readability;
+use readable_readability::Readability;
 use reqwest::header::CONTENT_TYPE;
 use sync_wrapper::SyncWrapper;
 
