@@ -90,6 +90,17 @@ pub async fn readable(url: Uri) -> Result<impl IntoResponse, (StatusCode, Html<S
             ),
         )
     })?;
+    let content = std::str::from_utf8(&content_bytes).map_err(|e| {
+        (
+            StatusCode::BAD_REQUEST,
+            render(
+                "Humm...",
+                "Invalid UTF-8 in article content",
+                &format!("Can't serialize content: {e}"),
+                None,
+            ),
+        )
+    })?;
 
     let header = format!(
         "A readable version of <a class=\"shortened\" href={url}>{url}</a><br />retrieved on {}",
@@ -99,7 +110,7 @@ pub async fn readable(url: Uri) -> Result<impl IntoResponse, (StatusCode, Html<S
         // TODO: Move title extraction to `readability`
         &extract_title(&body),
         &header,
-        std::str::from_utf8(&content_bytes).unwrap(),
+        content,
         Some(&url.as_str()),
     ))
 }
