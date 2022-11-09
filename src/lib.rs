@@ -5,7 +5,8 @@ use axum::{
     routing::get,
     Router,
 };
-use readability::extractor;
+use kuchiki::traits::*;
+use readable_readability::Readability;
 use reqwest::header::CONTENT_TYPE;
 use sync_wrapper::SyncWrapper;
 
@@ -37,7 +38,7 @@ pub async fn readable(url: Uri) -> Result<impl IntoResponse, (StatusCode, Html<S
     }
 
     // Convert to `url::Url`. This is needed later but it also validates the URL.
-    let url = url::Url::parse(&path).map_err(|e| {
+    let url = url::Url::parse(path).map_err(|e| {
         (
             StatusCode::BAD_REQUEST,
             render(
@@ -76,34 +77,50 @@ pub async fn readable(url: Uri) -> Result<impl IntoResponse, (StatusCode, Html<S
             )
         })?;
 
-    // Need to convert to something that `impl`s `Read`
-    let mut res = body.as_bytes();
-
-    let response = match extractor::extract(&mut res, &url) {
-        Ok(response) => response,
-        Err(e) => {
-            return Err((
-                StatusCode::BAD_REQUEST,
-                render(
-                    "Ouch",
-                    "Couldn't extract content from the article. (It is an article, right?)",
-                    &e.to_string(),
-                    None,
-                ),
-            ))
-        }
-    };
+    let content_root = Readability::new().base_url(Some(url.clone())).parse(&body);
+    let mut content_bytes = vec![];
+    content_root.serialize(&mut content_bytes).map_err(|e| {
+        (
+            StatusCode::BAD_REQUEST,
+            render(
+                "Ouch",
+                "Couldn't extract content form the article.(It is an article, right?)",
+                &format!("Can't serialize content: {e}"),
+                None,
+            ),
+        )
+    })?;
+    let content = std::str::from_utf8(&content_bytes).map_err(|e| {
+        (
+            StatusCode::BAD_REQUEST,
+            render(
+                "Humm...",
+                "Invalid UTF-8 in article content",
+                &format!("Can't serialize content: {e}"),
+                None,
+            ),
+        )
+    })?;
 
     let header = format!(
         "A readable version of <a class=\"shortened\" href={url}>{url}</a><br />retrieved on {}",
         get_time()
     );
     Ok(render(
-        &response.title,
+        // TODO: Move title extraction to `readability`
+        &extract_title(&body),
         &header,
-        &response.content,
-        Some(&url.as_str()),
+        content,
+        Some(url.as_str()),
     ))
+}
+
+fn extract_title(body: &str) -> String {
+    let document = kuchiki::parse_html().one(body);
+    document
+        .select_first("title")
+        .map(|title| title.text_contents())
+        .unwrap_or_else(|()| "Readable".to_string())
 }
 
 fn render(title: &str, header: &str, content: &str, canonical: Option<&str>) -> Html<String> {

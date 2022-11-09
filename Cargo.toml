@@ -15,11 +15,12 @@ anyhow = "1.0.66"
 axum = "0.5.17"
 shuttle-service = { version = "0.7.2", features = ["web-axum"], optional = true }
 sync_wrapper = "0.1.1"
-readability = "0.2.0"
+readable-readability = "0.2.0"
 tokio = { version = "1.20.1", features = ["full"], optional = true }
 url = "2.3.1"
 reqwest = "0.11.12"
 chrono = "0.4.22"
+kuchiki = "0.8.1"
 
 [features]
 default = ["shuttle"]
