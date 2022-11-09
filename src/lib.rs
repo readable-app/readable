@@ -38,7 +38,7 @@ pub async fn readable(url: Uri) -> Result<impl IntoResponse, (StatusCode, Html<S
     }
 
     // Convert to `url::Url`. This is needed later but it also validates the URL.
-    let url = url::Url::parse(&path).map_err(|e| {
+    let url = url::Url::parse(path).map_err(|e| {
         (
             StatusCode::BAD_REQUEST,
             render(
@@ -111,17 +111,16 @@ pub async fn readable(url: Uri) -> Result<impl IntoResponse, (StatusCode, Html<S
         &extract_title(&body),
         &header,
         content,
-        Some(&url.as_str()),
+        Some(url.as_str()),
     ))
 }
 
 fn extract_title(body: &str) -> String {
     let document = kuchiki::parse_html().one(body);
-    let title = document
+    document
         .select_first("title")
         .map(|title| title.text_contents())
-        .unwrap_or_else(|()| "Readable".to_string());
-    title
+        .unwrap_or_else(|()| "Readable".to_string())
 }
 
 fn render(title: &str, header: &str, content: &str, canonical: Option<&str>) -> Html<String> {
