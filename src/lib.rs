@@ -5,7 +5,6 @@ use axum::{
     routing::get,
     Router,
 };
-use kuchiki::traits::*;
 use readable_readability::Readability;
 use reqwest::header::CONTENT_TYPE;
 use sync_wrapper::SyncWrapper;
@@ -20,6 +19,7 @@ fn get_time() -> String {
 pub fn index() -> Html<String> {
     render(
         "Readable.",
+        "Readable",
         "A simple web service to extract the main content from an article<br /> and format it for <i>reading</i>.
         Source code <a href=\"https://github.com/mre/readable\">here</a>.
         ",
@@ -43,6 +43,7 @@ pub async fn readable(url: Uri) -> Result<impl IntoResponse, (StatusCode, Html<S
             StatusCode::BAD_REQUEST,
             render(
                 "Invalid URL",
+                "Invalid URL",
                 "Check if the path represents a valid URL",
                 &e.to_string(),
                 None,
@@ -57,6 +58,7 @@ pub async fn readable(url: Uri) -> Result<impl IntoResponse, (StatusCode, Html<S
                 StatusCode::BAD_REQUEST,
                 render(
                     "Yikes!",
+                    "Yikes!",
                     "Couldn't render article. (It is an article, right?)",
                     &format!("Can't fetch URL: {e}"),
                     None,
@@ -70,6 +72,7 @@ pub async fn readable(url: Uri) -> Result<impl IntoResponse, (StatusCode, Html<S
                 StatusCode::BAD_REQUEST,
                 render(
                     "Yikes!",
+                    "Yikes!",
                     "Couldn't render article. (It is an article, right?)",
                     &format!("Can't fetch response body text: {e}"),
                     None,
@@ -77,12 +80,13 @@ pub async fn readable(url: Uri) -> Result<impl IntoResponse, (StatusCode, Html<S
             )
         })?;
 
-    let content_root = Readability::new().base_url(Some(url.clone())).parse(&body);
+    let (content_root, meta) = Readability::new().base_url(Some(url.clone())).parse(&body);
     let mut content_bytes = vec![];
     content_root.serialize(&mut content_bytes).map_err(|e| {
         (
             StatusCode::BAD_REQUEST,
             render(
+                "Ouch",
                 "Ouch",
                 "Couldn't extract content form the article.(It is an article, right?)",
                 &format!("Can't serialize content: {e}"),
@@ -94,6 +98,7 @@ pub async fn readable(url: Uri) -> Result<impl IntoResponse, (StatusCode, Html<S
         (
             StatusCode::BAD_REQUEST,
             render(
+                "Humm...",
                 "Humm...",
                 "Invalid UTF-8 in article content",
                 &format!("Can't serialize content: {e}"),
@@ -107,26 +112,19 @@ pub async fn readable(url: Uri) -> Result<impl IntoResponse, (StatusCode, Html<S
         get_time()
     );
     Ok(render(
-        // TODO: Move title extraction to `readability`
-        &extract_title(&body),
+        &meta.page_title.unwrap_or_else(|| "Readable".into()),
+        &meta.article_title.unwrap_or_else(|| "Readable".into()),
         &header,
         content,
         Some(url.as_str()),
     ))
 }
 
-fn extract_title(body: &str) -> String {
-    let document = kuchiki::parse_html().one(body);
-    document
-        .select_first("title")
-        .map(|title| title.text_contents())
-        .unwrap_or_else(|()| "Readable".to_string())
-}
-
-fn render(title: &str, header: &str, content: &str, canonical: Option<&str>) -> Html<String> {
+fn render(page_title: &str, article_title: &str, header: &str, content: &str, canonical: Option<&str>) -> Html<String> {
     let template = include_str!("../static/template.html");
     let mut output = template
-        .replace("{{title}}", title)
+        .replace("{{page_title}}", page_title)
+        .replace("{{article_title}}", article_title)
         .replace("{{header}}", header)
         .replace("{{content}}", content);
 
