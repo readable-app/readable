@@ -11,6 +11,21 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: shuttle-hq/deploy-action@main
-        with:
-          deploy-key: ${{ secrets.SHUTTLE_DEPLOY_KEY }}
+      - name: Install Shuttle
+        run: |
+          set -e
+          RELEASE=$(curl -fsSL https://api.github.com/repos/jfmontanaro/cargo-shuttle-builds/releases/latest)
+          URL=$(jq -r <<<$RELEASE '.assets[] | select(.name == "cargo-shuttle_x86_64-unknown-linux-gnu") | .browser_download_url')
+          curl -fsSL $URL > cargo-shuttle
+          chmod +x cargo-shuttle
+          mv cargo-shuttle ~/.cargo/bin
+
+      - name: Checkout source
+        uses: actions/checkout@v3
+
+      - name: Deploy to Shuttle
+        run: |
+          set -e
+          cargo shuttle login --api-key ${{ secrets.SHUTTLE_DEPLOY_KEY }}
+          # the official Shuttle action strips out the database uri, we might as well do the same
+          cargo shuttle deploy --name readable-test | awk '!/Database URI.*?$/'
