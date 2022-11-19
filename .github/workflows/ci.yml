@@ -28,4 +28,4 @@ jobs:
           set -e
           cargo shuttle login --api-key ${{ secrets.SHUTTLE_DEPLOY_KEY }}
           # the official Shuttle action strips out the database uri, we might as well do the same
-          cargo shuttle deploy --name readable-test | awk '!/Database URI.*?$/'
+          cargo shuttle deploy | awk '!/Database URI.*?$/'
