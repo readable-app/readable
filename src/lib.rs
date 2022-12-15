@@ -120,7 +120,13 @@ pub async fn readable(url: Uri) -> Result<impl IntoResponse, (StatusCode, Html<S
     ))
 }
 
-fn render(page_title: &str, article_title: &str, header: &str, content: &str, canonical: Option<&str>) -> Html<String> {
+fn render(
+    page_title: &str,
+    article_title: &str,
+    header: &str,
+    content: &str,
+    canonical: Option<&str>,
+) -> Html<String> {
     let template = include_str!("../static/template.html");
     let mut output = template
         .replace("{{page_title}}", page_title)
@@ -171,7 +177,7 @@ async fn axum() -> shuttle_service::ShuttleAxum {
                 )
             }),
         )
-        .fallback(get(readable));
+        .fallback(readable);
     let sync_wrapper = SyncWrapper::new(router);
 
     Ok(sync_wrapper)
