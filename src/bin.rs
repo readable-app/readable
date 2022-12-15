@@ -32,7 +32,7 @@ async fn main() -> Result<()> {
                 )
             }),
         )
-        .fallback(get(readable));
+        .fallback(readable);
     let addr = SocketAddr::from(([127, 0, 0, 1], 8000));
     axum::Server::bind(&addr)
         .serve(router.into_make_service())
