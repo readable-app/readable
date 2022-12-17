@@ -1,20 +1,18 @@
 use axum::{
     body::Body,
+    extract::TypedHeader,
+    headers::UserAgent,
     http::{HeaderValue, StatusCode, Uri},
     response::{self, Html, IntoResponse, Response},
     routing::get,
     Router,
 };
 use readable_readability::Readability;
-use reqwest::header::CONTENT_TYPE;
+use reqwest::header::{CONTENT_TYPE, USER_AGENT};
 use sync_wrapper::SyncWrapper;
 
-/// get current date and time as UTC
-/// and format as: 1 December, 2017 12:00:00
-fn get_time() -> String {
-    let now = chrono::Local::now();
-    now.format("%A, %B %e, %Y, %H:%M:%S").to_string()
-}
+mod utils;
+
 
 pub fn index() -> Html<String> {
     render(
@@ -28,7 +26,7 @@ pub fn index() -> Html<String> {
     )
 }
 
-pub async fn readable(url: Uri) -> Result<impl IntoResponse, (StatusCode, Html<String>)> {
+pub async fn readable(url: Uri, ua_header: Option<TypedHeader<UserAgent>>) -> Result<impl IntoResponse, (StatusCode, Html<String>)> {
     // Strip the leading slash. Not sure if there's a better way to do this.
     let path = url.path().trim_start_matches('/');
 
@@ -51,7 +49,10 @@ pub async fn readable(url: Uri) -> Result<impl IntoResponse, (StatusCode, Html<S
         )
     })?;
 
-    let body = reqwest::get(url.clone())
+    let body = reqwest::Client::new()
+        .get(url.clone())
+        .header(USER_AGENT, utils::forwarded_agent(&ua_header))
+        .send()
         .await
         .map_err(|e| {
             (
@@ -109,7 +110,7 @@ pub async fn readable(url: Uri) -> Result<impl IntoResponse, (StatusCode, Html<S
 
     let header = format!(
         "A readable version of <a class=\"shortened\" href={url}>{url}</a><br />retrieved on {}",
-        get_time()
+        utils::get_time()
     );
     Ok(render(
         &meta.page_title.unwrap_or_else(|| "Readable".into()),
