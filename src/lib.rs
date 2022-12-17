@@ -8,20 +8,11 @@ use axum::{
     Router,
 };
 use readable_readability::Readability;
-use reqwest::header::{CONTENT_TYPE, USER_AGENT, HeaderValue as ReqwestHeaderValue};
+use reqwest::header::{CONTENT_TYPE, USER_AGENT};
 use sync_wrapper::SyncWrapper;
 
+mod utils;
 
-const DEFAULT_USER_AGENT: ReqwestHeaderValue = ReqwestHeaderValue::from_static(
-    concat!("Readable/", env!("CARGO_PKG_VERSION"))
-);
-
-/// get current date and time as UTC
-/// and format as: 1 December, 2017 12:00:00
-fn get_time() -> String {
-    let now = chrono::Local::now();
-    now.format("%A, %B %e, %Y, %H:%M:%S").to_string()
-}
 
 pub fn index() -> Html<String> {
     render(
@@ -58,16 +49,9 @@ pub async fn readable(url: Uri, ua_header: Option<TypedHeader<UserAgent>>) -> Re
         )
     })?;
 
-    let forwarded_agent = match ua_header {
-        Some(TypedHeader(ua)) => {
-            ReqwestHeaderValue::from_str(ua.as_str()).unwrap_or(DEFAULT_USER_AGENT)
-        },
-        None => DEFAULT_USER_AGENT,
-    };
-
-    let client = reqwest::Client::new();
-    let body = client.get(url.clone())
-        .header(USER_AGENT, forwarded_agent)
+    let body = reqwest::Client::new()
+        .get(url.clone())
+        .header(USER_AGENT, utils::forwarded_agent(&ua_header))
         .send()
         .await
         .map_err(|e| {
@@ -126,7 +110,7 @@ pub async fn readable(url: Uri, ua_header: Option<TypedHeader<UserAgent>>) -> Re
 
     let header = format!(
         "A readable version of <a class=\"shortened\" href={url}>{url}</a><br />retrieved on {}",
-        get_time()
+        utils::get_time()
     );
     Ok(render(
         &meta.page_title.unwrap_or_else(|| "Readable".into()),
