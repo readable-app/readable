@@ -1,13 +1,20 @@
 use axum::{
     body::Body,
+    extract::TypedHeader,
+    headers::UserAgent,
     http::{HeaderValue, StatusCode, Uri},
     response::{self, Html, IntoResponse, Response},
     routing::get,
     Router,
 };
 use readable_readability::Readability;
-use reqwest::header::CONTENT_TYPE;
+use reqwest::header::{CONTENT_TYPE, USER_AGENT, HeaderValue as ReqwestHeaderValue};
 use sync_wrapper::SyncWrapper;
+
+
+const DEFAULT_USER_AGENT: ReqwestHeaderValue = ReqwestHeaderValue::from_static(
+    concat!("Readable/", env!("CARGO_PKG_VERSION"))
+);
 
 /// get current date and time as UTC
 /// and format as: 1 December, 2017 12:00:00
@@ -28,7 +35,7 @@ pub fn index() -> Html<String> {
     )
 }
 
-pub async fn readable(url: Uri) -> Result<impl IntoResponse, (StatusCode, Html<String>)> {
+pub async fn readable(url: Uri, ua_header: Option<TypedHeader<UserAgent>>) -> Result<impl IntoResponse, (StatusCode, Html<String>)> {
     // Strip the leading slash. Not sure if there's a better way to do this.
     let path = url.path().trim_start_matches('/');
 
@@ -51,7 +58,17 @@ pub async fn readable(url: Uri) -> Result<impl IntoResponse, (StatusCode, Html<S
         )
     })?;
 
-    let body = reqwest::get(url.clone())
+    let forwarded_agent = match ua_header {
+        Some(TypedHeader(ua)) => {
+            ReqwestHeaderValue::from_str(ua.as_str()).unwrap_or(DEFAULT_USER_AGENT)
+        },
+        None => DEFAULT_USER_AGENT,
+    };
+
+    let client = reqwest::Client::new();
+    let body = client.get(url.clone())
+        .header(USER_AGENT, forwarded_agent)
+        .send()
         .await
         .map_err(|e| {
             (
