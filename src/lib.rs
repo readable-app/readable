@@ -18,7 +18,7 @@ pub fn index() -> Html<String> {
     render(
         "Readable.",
         "Readable",
-        "A simple web service to extract the main content from an article<br /> and format it for <i>reading</i>.
+        "A simple web service to extract the main content from an article and format it for <i>reading</i>.
         Source code <a href=\"https://github.com/mre/readable\">here</a>.
         ",
         include_str!("../static/index.html"),
