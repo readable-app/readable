@@ -1745,6 +1745,7 @@ dependencies = [
  "axum",
  "chrono",
  "kuchiki",
+ "once_cell",
  "readable-readability",
  "reqwest",
  "shuttle-axum",
