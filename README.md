@@ -21,22 +21,13 @@ Read the [announcement blog post](https://endler.dev/2022/readable) for more det
 
 ## Deployment
 
-You can either deploy a self-hosted instance or use [shuttle.rs](https://shuttle.rs).
+We use [shuttle.rs](https://shuttle.rs) for deployment.
 Once you signed up for a shuttle.rs account, you can deploy Readable with a
 single command:
 
 ```bash
 make deploy
 ```
-
-For the self-hosted version, you can just compile the project and run the binary.
-
-```rust
-cargo build --release --features local
-./target/release/readable
-```
-
-This will start a server on port 8000.
 
 ## Contributions Welcome!
 

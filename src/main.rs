@@ -9,10 +9,8 @@ use axum::{
 };
 use readable_readability::Readability;
 use reqwest::header::{CONTENT_TYPE, USER_AGENT};
-use sync_wrapper::SyncWrapper;
 
 mod utils;
-
 
 pub fn index() -> Html<String> {
     render(
@@ -26,7 +24,10 @@ pub fn index() -> Html<String> {
     )
 }
 
-pub async fn readable(url: Uri, ua_header: Option<TypedHeader<UserAgent>>) -> Result<impl IntoResponse, (StatusCode, Html<String>)> {
+pub async fn readable(
+    url: Uri,
+    ua_header: Option<TypedHeader<UserAgent>>,
+) -> Result<impl IntoResponse, (StatusCode, Html<String>)> {
     // Strip the leading slash. Not sure if there's a better way to do this.
     let path = url.path().trim_start_matches('/');
 
@@ -157,8 +158,8 @@ pub fn static_content(
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }
 
-#[shuttle_service::main]
-async fn axum() -> shuttle_service::ShuttleAxum {
+#[shuttle_runtime::main]
+async fn axum() -> shuttle_axum::ShuttleAxum {
     let router = Router::new()
         .route(
             "/static/Crimson.woff2",
@@ -179,7 +180,6 @@ async fn axum() -> shuttle_service::ShuttleAxum {
             }),
         )
         .fallback(readable);
-    let sync_wrapper = SyncWrapper::new(router);
 
-    Ok(sync_wrapper)
+    Ok(router.into())
 }

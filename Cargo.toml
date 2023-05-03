@@ -1,28 +1,19 @@
 [package]
 name = "readable"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 publish = false
 
-[[bin]]
-name = "readable"
-path = "src/bin.rs"
-
-[lib]
-
 [dependencies]
-anyhow = "1.0.69"
-axum = { version = "0.6.6", features = ["headers"] }
-shuttle-service = { version = "0.11.0", features = ["web-axum"], optional = true }
+anyhow = "1.0.71"
+axum = { version = "0.6.18", features = ["headers"] }
 sync_wrapper = "0.1.2"
 readable-readability = "0.4.0"
-tokio = { version = "1.22.0", features = ["full"], optional = true }
+tokio = { version = "1.28.0", features = ["full"]}
 url = "2.3.1"
-reqwest = "0.11.14"
-chrono = "0.4.23"
+reqwest = "0.11.17"
+chrono = "0.4.24"
 kuchiki = "0.8.1"
+shuttle-axum = { version = "0.15.0" }
+shuttle-runtime = { version = "0.15.0" }
 
-[features]
-default = ["shuttle"]
-shuttle = ["shuttle-service"]
-local = ["dep:tokio"]
