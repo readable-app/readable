@@ -8,4 +8,4 @@ logs:
 
 .PHONY: dev watch local
 dev watch local:
-	cargo watch -x 'run --features local'
+	cargo shuttle run
