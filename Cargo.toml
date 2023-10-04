@@ -17,4 +17,5 @@ kuchiki = "0.8.1"
 shuttle-axum = { version = "0.28.0" }
 shuttle-runtime = { version = "0.28.0" }
 once_cell = "1.17.1"
+tower-http = { version = "0.4.4", features = ["fs"] }
 
