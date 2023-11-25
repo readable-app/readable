@@ -1,5 +1,3 @@
-use std::path::PathBuf;
-
 use axum::{
     body::Body,
     extract::TypedHeader,
@@ -10,7 +8,6 @@ use axum::{
 };
 use readable_readability::Readability;
 use reqwest::header::{CONTENT_TYPE, USER_AGENT};
-use tower_http::services::ServeDir;
 
 mod utils;
 
@@ -162,9 +159,7 @@ pub fn static_content(
 
 #[shuttle_runtime::main]
 async fn axum() -> shuttle_axum::ShuttleAxum {
-    let router = Router::new()
-        .nest_service("/static", ServeDir::new(PathBuf::from("static")))
-        .fallback(readable);
+    let router = Router::new().fallback(readable);
 
     Ok(router.into())
 }
